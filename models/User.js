@@ -1,7 +1,7 @@
-var mongoose = require('mongoose')
-var bcrypt = require('bcryptjs')
+let mongoose = require('mongoose')
+let bcrypt = require('bcryptjs')
 
-var userSchema = mongoose.Schema({
+let userSchema = mongoose.Schema({
   email: {
     type: String,
     index: true
@@ -20,7 +20,7 @@ var userSchema = mongoose.Schema({
   }
 })
 
-var User = (module.exports = mongoose.model('User', userSchema))
+let User = (module.exports = mongoose.model('User', userSchema))
 
 module.exports.createUser = function (newUser, callback) {
   bcrypt.genSalt(10, function (err, salt) {
@@ -31,21 +31,23 @@ module.exports.createUser = function (newUser, callback) {
   })
 }
 
-module.exports.getUserByEmail = function (email, callback) {
-  var query = { email: email }
+module.exports.getUserByEmail = (email, callback) => {
+  let query = { email: email }
   User.findOne(query, callback)
 }
 
-module.exports.getUserById = function (id, callback) {
+module.exports.getUserById = (id, callback) => {
   User.findById(id, callback)
 }
-module.exports.comparePassword = function (givenPassword, hash, callback) {
-  bcrypt.compare(givenPassword, hash, function (err, isMatch) {
-    if (err) throw err
+module.exports.comparePassword = (givenPassword, hash, callback) => {
+  bcrypt.compare(givenPassword, hash, (err, isMatch) => {
+    if (err) {
+      throw err
+    }
     callback(null, isMatch)
   })
 }
 
-module.exports.getAllUsers = function (callback) {
+module.exports.getAllUsers = (callback) => {
   User.find(callback)
 }

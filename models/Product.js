@@ -1,6 +1,6 @@
-var mongoose = require('mongoose')
+let mongoose = require('mongoose')
 
-var productSchema = mongoose.Schema({
+let productSchema = mongoose.Schema({
   imagePath: {
     type: String
   },
@@ -30,7 +30,7 @@ var productSchema = mongoose.Schema({
   }
 })
 
-var Product = (module.exports = mongoose.model('Product', productSchema))
+let Product = (module.exports = mongoose.model('Product', productSchema))
 
 module.exports.getAllProducts = function (query, sort, callback) {
   Product.find(query, null, sort, callback)
@@ -50,19 +50,19 @@ module.exports.getProductByTitle = function (query, sort, callback) {
 
 module.exports.filterProductByDepartment = function (department, callback) {
   let regexp = new RegExp(`${department}`, 'i')
-  var query = { department: { $regex: regexp } }
+  let query = { department: { $regex: regexp } }
   Product.find(query, callback)
 }
 
 module.exports.filterProductByCategory = function (category, callback) {
   let regexp = new RegExp(`${category}`, 'i')
-  var query = { category: { $regex: regexp } }
+  let query = { category: { $regex: regexp } }
   Product.find(query, callback)
 }
 
 module.exports.filterProductByTitle = function (title, callback) {
   let regexp = new RegExp(`${title}`, 'i')
-  var query = { title: { $regex: regexp } }
+  let query = { title: { $regex: regexp } }
   Product.find(query, callback)
 }
 

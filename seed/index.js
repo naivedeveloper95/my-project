@@ -1,15 +1,15 @@
-var User = require('../models/User')
-var Category = require('../models/Category')
-var Department = require('../models/Department')
-var Product = require('../models/Product')
-var Variant = require('../models/Variant')
-var mongoose = require('mongoose')
+let User = require('../models/User')
+let Category = require('../models/Category')
+let Department = require('../models/Department')
+let Product = require('../models/Product')
+let Variant = require('../models/Variant')
+let mongoose = require('mongoose')
 const mongoConfig = require('../configs/mongo-config')
 //mongoose.connect('mongodb://localhost/shoppingApp');
 //mongoose.connect('mongodb://localhost/myShoppingApp3', { useNewUrlParser: true, useCreateIndex: true, });
 mongoose.connect(mongoConfig, { useNewUrlParser: true, useCreateIndex: true })
 
-var categories = [
+let categories = [
   new Category({
     categoryName: 'Basics'
   }),
@@ -35,7 +35,7 @@ for (let i = 0; i < categories.length; i++) {
   })
 }
 
-var departments = [
+let departments = [
   new Department({
     departmentName: 'Women',
     categories: 'Basics,Blazer'
@@ -54,7 +54,7 @@ for (let i = 0; i < departments.length; i++) {
   })
 }
 
-var products = [
+let products = [
   new Product({
     _id: '5bedf31cc14d7822b39d9d43',
     imagePath:
@@ -175,7 +175,7 @@ for (let i = 0; i < products.length; i++) {
   })
 }
 
-var variants = [
+let variants = [
   new Variant({
     productID: '5bedf31cc14d7822b39d9d43',
     imagePath:
@@ -234,14 +234,16 @@ for (let i = 0; i < variants.length; i++) {
   })
 }
 
-var newUser = new User({
+let newUser = new User({
   username: 'admin@admin.com',
   password: 'admin',
   fullname: 'Cuneyt Celebican',
   admin: true
 })
 User.createUser(newUser, function (err, user) {
-  if (err) throw err
+  if (err) {
+    throw err
+  }
   console.log(user)
 })
 

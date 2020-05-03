@@ -3,9 +3,9 @@
 // You can think that this is a representation of the database and we are using that
 // for saving, reading, updating information from the database.
 
-var mongoose = require('mongoose')
+let mongoose = require('mongoose')
 
-var departmentSchema = mongoose.Schema({
+let departmentSchema = mongoose.Schema({
   departmentName: {
     type: String,
     index: true
@@ -15,7 +15,7 @@ var departmentSchema = mongoose.Schema({
   }
 })
 
-var Department = (module.exports = mongoose.model(
+let Department = (module.exports = mongoose.model(
   'Department',
   departmentSchema
 ))

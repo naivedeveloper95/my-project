@@ -35,13 +35,15 @@ router.post('/signin', function (req, res, next) {
     })
     return next(err)
   }
-  var newUser = new User({
+  let newUser = new User({
     fullname: fullname,
     password: password,
     email: email
   })
   User.getUserByEmail(email, function (error, user) {
-    if (error) return next(err)
+    if (error) {
+      return next(err)
+    }
     if (user) {
       let err = new TypedError('signin error', 409, 'invalid_field', {
         message: 'user is existed'
@@ -49,7 +51,9 @@ router.post('/signin', function (req, res, next) {
       return next(err)
     }
     User.createUser(newUser, function (err, user) {
-      if (err) return next(err)
+      if (err) {
+        return next(err)
+      }
       res.json({ message: 'user created' })
     })
   })
@@ -65,7 +69,9 @@ router.post('/login', function (req, res, next) {
     return next(err)
   }
   User.getUserByEmail(email, function (err, user) {
-    if (err) return next(err)
+    if (err) {
+      return next(err)
+    }
     if (!user) {
       let err = new TypedError('login error', 403, 'invalid_field', {
         message: 'Incorrect email or password'
@@ -73,7 +79,9 @@ router.post('/login', function (req, res, next) {
       return next(err)
     }
     User.comparePassword(password, user.password, function (err, isMatch) {
-      if (err) return next(err)
+      if (err) {
+        return next(err)
+      }
       if (isMatch) {
         let token = jwt.sign({ email: email }, config.secret, {
           expiresIn: '7d'
@@ -100,7 +108,9 @@ router.post('/login', function (req, res, next) {
 router.get('/:userId/cart', ensureAuthenticated, function (req, res, next) {
   let userId = req.params.userId
   Cart.getCartByUserId(userId, function (err, cart) {
-    if (err) return next(err)
+    if (err) {
+      return next(err)
+    }
     if (cart.length < 1) {
       let err = new TypedError('cart error', 404, 'not_found', {
         message: 'create a cart first'
@@ -118,7 +128,9 @@ router.post('/:userId/cart', ensureAuthenticated, function (req, res, next) {
   // let { color, size } = requestProduct.product
 
   Cart.getCartByUserId(userId, function (err, c) {
-    if (err) return next(err)
+    if (err) {
+      return next(err)
+    }
     let oldCart = new CartClass(c[0] || { userId })
     // no cart save empty cart to database then return response
     if (c.length < 1 && !productId) {
@@ -126,7 +138,9 @@ router.post('/:userId/cart', ensureAuthenticated, function (req, res, next) {
         err,
         resultCart
       ) {
-        if (err) return next(err)
+        if (err) {
+          return next(err)
+        }
         return res.status(201).json({ cart: resultCart })
       })
     }
@@ -145,7 +159,9 @@ router.post('/:userId/cart', ensureAuthenticated, function (req, res, next) {
         }
         let newCart = oldCart.generateModel()
         Cart.updateCartByUserId(userId, newCart, function (err, result) {
-          if (err) return next(err)
+          if (err) {
+            return next(err)
+          }
           return res.status(200).json({ cart: result })
         })
       } else {
@@ -170,7 +186,9 @@ router.post('/:userId/cart', ensureAuthenticated, function (req, res, next) {
               }
               let newCart = oldCart.generateModel()
               Cart.updateCartByUserId(userId, newCart, function (err, result) {
-                if (err) return next(err)
+                if (err) {
+                  return next(err)
+                }
                 res.status(200).json({ cart: result })
               })
             })
@@ -195,10 +213,14 @@ router.put('/:userId/cart', ensureAuthenticated, function (req, res, next) {
   let { productId, color, size } = requestProduct.product
 
   Cart.getCartByUserId(userId, function (err, c) {
-    if (err) return next(err)
+    if (err) {
+      return next(err)
+    }
     let oldCart = new CartClass(c[0] || {})
     Product.getProductByID(productId, function (err, p) {
-      if (err) return next(err)
+      if (err) {
+        return next(err)
+      }
       // console.log(`oldCart: \n${JSON.stringify(oldCart)}\n`);
       let newCart = oldCart.add(p, productId, { color, size })
       // console.log(`newCart: \n${JSON.stringify(newCart)}\n`);
@@ -214,7 +236,9 @@ router.put('/:userId/cart', ensureAuthenticated, function (req, res, next) {
             userId: userId
           },
           function (err, result) {
-            if (err) return next(err)
+            if (err) {
+              return next(err)
+            }
             res.json(result)
           }
         )
@@ -227,7 +251,9 @@ router.put('/:userId/cart', ensureAuthenticated, function (req, res, next) {
           userId: userId
         })
         Cart.createCart(newCart, function (err, resultCart) {
-          if (err) return next(err)
+          if (err) {
+            return next(err)
+          }
           res.status(201).json(resultCart)
         })
       }

@@ -1,5 +1,5 @@
-var express = require('express')
-var router = express.Router()
+const express = require('express')
+const router = express.Router()
 const ensureAuthenticated = require('../modules/ensureAuthenticated')
 const Product = require('../models/Product')
 const Variant = require('../models/Variant')
@@ -8,13 +8,13 @@ const Category = require('../models/Category')
 const TypedError = require('../modules/ErrorHandler')
 const Cart = require('../models/Cart')
 const CartClass = require('../modules/Cart')
-const paypal_config = require('../configs/paypal-config')
+const paypalConfig = require('../configs/paypal-config')
 const paypal = require('paypal-rest-sdk')
 
 //GET /products
-router.get('/products', function (req, res, next) {
+router.get('/products', (req, res, next) => {
   const { query, order } = categorizeQueryString(req.query)
-  Product.getAllProducts(query, order, function (e, products) {
+  Product.getAllProducts(query, order, (e, products) => {
     if (e) {
       e.status = 406
       return next(e)
@@ -27,9 +27,9 @@ router.get('/products', function (req, res, next) {
 })
 
 //GET /products/:id
-router.get('/products/:id', function (req, res, next) {
+router.get('/products/:id', (req, res, next) => {
   let productId = req.params.id
-  Product.getProductByID(productId, function (e, item) {
+  Product.getProductByID(productId, (e, item) => {
     if (e) {
       e.status = 404
       return next(e)
@@ -40,17 +40,21 @@ router.get('/products/:id', function (req, res, next) {
 })
 
 //GET /variants
-router.get('/variants', function (req, res, next) {
+router.get('/variants', (req, res, next) => {
   let { productId } = req.query
   if (productId) {
-    Variant.getVariantProductByID(productId, function (err, variants) {
-      if (err) return next(err)
+    Variant.getVariantProductByID(productId, (err, variants) => {
+      if (err) {
+        return next(err)
+      }
       return res.json({ variants })
     })
   } else {
-    Variant.getAllVariants(function (e, variants) {
+    Variant.getAllVariants((e, variants) => {
       if (e) {
-        if (err) return next(err)
+        if (err) {
+          return next(err)
+        }
       } else {
         return res.json({ variants })
       }
@@ -59,59 +63,71 @@ router.get('/variants', function (req, res, next) {
 })
 
 //GET /variants/:id
-router.get('/variants/:id', ensureAuthenticated, function (req, res, next) {
+router.get('/variants/:id', ensureAuthenticated, (req, res, next) => {
   let id = req.params.id
   if (id) {
-    Variant.getVariantByID(id, function (err, variants) {
-      if (err) return next(err)
+    Variant.getVariantByID(id, (err, variants) => {
+      if (err) {
+        return next(err)
+      }
       res.json({ variants })
     })
   }
 })
 
 //GET /departments
-router.get('/departments', function (req, res, next) {
-  Department.getAllDepartments(function (err, d) {
-    if (err) return next(err)
+router.get('/departments', (req, res, next) => {
+  Department.getAllDepartments((err, d) => {
+    if (err) {
+      return next(err)
+    }
     res.status(200).json({ departments: d })
   })
 })
 
 //GET /categories
-router.get('/categories', function (req, res, next) {
-  Category.getAllCategories(function (err, c) {
-    if (err) return next(err)
+router.get('/categories', (req, res, next) => {
+  Category.getAllCategories((err, c) => {
+    if (err) {
+      return next(err)
+    }
     res.json({ categories: c })
   })
 })
 
 //GET /search?
-router.get('/search', function (req, res, next) {
+router.get('/search', (req, res, next) => {
   const { query, order } = categorizeQueryString(req.query)
   query['department'] = query['query']
   delete query['query']
-  Product.getProductByDepartment(query, order, function (err, p) {
-    if (err) return next(err)
+  Product.getProductByDepartment(query, order, (err, p) => {
+    if (err) {
+      return next(err)
+    }
     if (p.length > 0) {
       return res.json({ products: p })
     } else {
       query['category'] = query['department']
       delete query['department']
-      Product.getProductByCategory(query, order, function (err, p) {
-        if (err) return next(err)
+      Product.getProductByCategory(query, order, (err, p) => {
+        if (err) {
+          return next(err)
+        }
         if (p.length > 0) {
           return res.json({ products: p })
         } else {
           query['title'] = query['category']
           delete query['category']
-          Product.getProductByTitle(query, order, function (err, p) {
-            if (err) return next(err)
+          Product.getProductByTitle(query, order, (err, p) => {
+            if (err) {
+              return next(err)
+            }
             if (p.length > 0) {
               return res.json({ products: p })
             } else {
               query['id'] = query['title']
               delete query['title']
-              Product.getProductByID(query.id, function (err, p) {
+              Product.getProductByID(query.id, (err, p) => {
                 let error = new TypedError('search', 404, 'not_found', {
                   message: 'no product exist'
                 })
@@ -133,21 +149,27 @@ router.get('/search', function (req, res, next) {
 })
 
 // GET filter
-router.get('/filter', function (req, res, next) {
+router.get('/filter', (req, res, next) => {
   let result = {}
   let query = req.query.query
-  Product.filterProductByDepartment(query, function (err, p) {
-    if (err) return next(err)
+  Product.filterProductByDepartment(query, (err, p) => {
+    if (err) {
+      return next(err)
+    }
     if (p.length > 0) {
       result['department'] = generateFilterResultArray(p, 'department')
     }
-    Product.filterProductByCategory(query, function (err, p) {
-      if (err) return next(err)
+    Product.filterProductByCategory(query, (err, p) => {
+      if (err) {
+        return next(err)
+      }
       if (p.length > 0) {
         result['category'] = generateFilterResultArray(p, 'category')
       }
-      Product.filterProductByTitle(query, function (err, p) {
-        if (err) return next(err)
+      Product.filterProductByTitle(query, (err, p) => {
+        if (err) {
+          return next(err)
+        }
         if (p.length > 0) {
           result['title'] = generateFilterResultArray(p, 'title')
         }
@@ -165,30 +187,32 @@ router.get('/filter', function (req, res, next) {
 })
 
 //GET /checkout
-router.get('/checkout/:cartId', ensureAuthenticated, function (req, res, next) {
+router.get('/checkout/:cartId', ensureAuthenticated, (req, res, next) => {
   const cartId = req.params.cartId
   const frontURL = 'https://zack-ecommerce-reactjs.herokuapp.com'
   // const frontURL = 'http://localhost:3000'
 
-  Cart.getCartById(cartId, function (err, c) {
-    if (err) return next(err)
+  Cart.getCartById(cartId, (err, c) => {
+    if (err) {
+      return next(err)
+    }
     if (!c) {
       let err = new TypedError('/checkout', 400, 'invalid_field', {
         message: 'cart not found'
       })
       return next(err)
     }
-    const items_arr = new CartClass(c).generateArray()
-    const paypal_list = []
-    for (const i of items_arr) {
-      paypal_list.push({
+    const itemsArray = new CartClass(c).generateArray()
+    const paypalList = []
+    for (const i of itemsArray) {
+      paypalList.push({
         name: i.item.title,
         price: i.item.price,
         currency: 'CAD',
         quantity: i.qty
       })
     }
-    const create_payment_json = {
+    const createPaymentJson = {
       intent: 'sale',
       payer: {
         payment_method: 'paypal'
@@ -200,7 +224,7 @@ router.get('/checkout/:cartId', ensureAuthenticated, function (req, res, next) {
       transactions: [
         {
           item_list: {
-            items: paypal_list
+            items: paypalList
           },
           amount: {
             currency: 'CAD',
@@ -210,8 +234,8 @@ router.get('/checkout/:cartId', ensureAuthenticated, function (req, res, next) {
         }
       ]
     }
-    paypal.configure(paypal_config)
-    paypal.payment.create(create_payment_json, function (error, payment) {
+    paypal.configure(paypalConfig)
+    paypal.payment.create(createPaymentJson, (error, payment) => {
       if (error) {
         console.log(JSON.stringify(error))
         return next(error)
@@ -228,15 +252,15 @@ router.get('/checkout/:cartId', ensureAuthenticated, function (req, res, next) {
 })
 
 //GET /payment/success
-router.get('/payment/success', ensureAuthenticated, function (req, res, next) {
-  var paymentId = req.query.paymentId
-  var payerId = { payer_id: req.query.PayerID }
-  paypal.payment.execute(paymentId, payerId, function (error, payment) {
+router.get('/payment/success', ensureAuthenticated, (req, res, next) => {
+  let paymentId = req.query.paymentId
+  let payerId = { payer_id: req.query.PayerID }
+  paypal.payment.execute(paymentId, payerId, (error, payment) => {
     if (error) {
       console.error(JSON.stringify(error))
       return next(error)
     } else {
-      if (payment.state == 'approved') {
+      if (payment.state === 'approved') {
         console.log('payment completed successfully')
         console.log(payment)
         res.json({ payment })
@@ -248,11 +272,11 @@ router.get('/payment/success', ensureAuthenticated, function (req, res, next) {
 })
 
 function generateFilterResultArray(products, targetProp) {
-  let result_set = new Set()
+  let resultSet = new Set()
   for (const p of products) {
-    result_set.add(p[targetProp])
+    resultSet.add(p[targetProp])
   }
-  return Array.from(result_set)
+  return Array.from(resultSet)
 }
 
 function categorizeQueryString(queryObj) {
@@ -268,25 +292,25 @@ function categorizeQueryString(queryObj) {
       }
       // extract range
       if (i === 'range') {
-        let range_arr = []
-        let query_arr = []
+        let rangeArr = []
+        let queryArr = []
         // multi ranges
         if (queryObj[i].constructor === Array) {
           for (const r of queryObj[i]) {
-            range_arr = r.split('-')
-            query_arr.push({
-              price: { $gt: range_arr[0], $lt: range_arr[1] }
+            rangeArr = r.split('-')
+            queryArr.push({
+              price: { $gt: rangeArr[0], $lt: rangeArr[1] }
             })
           }
         }
         // one range
         if (queryObj[i].constructor === String) {
-          range_arr = queryObj[i].split('-')
-          query_arr.push({
-            price: { $gt: range_arr[0], $lt: range_arr[1] }
+          rangeArr = queryObj[i].split('-')
+          queryArr.push({
+            price: { $gt: rangeArr[0], $lt: rangeArr[1] }
           })
         }
-        Object.assign(query, { $or: query_arr })
+        Object.assign(query, { $or: queryArr })
         delete query[i]
         continue
       }

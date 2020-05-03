@@ -1,6 +1,6 @@
-var mongoose = require('mongoose')
+let mongoose = require('mongoose')
 
-var variantSchema = mongoose.Schema({
+let variantSchema = mongoose.Schema({
   productID: {
     type: String
   },
@@ -24,16 +24,16 @@ var variantSchema = mongoose.Schema({
   }
 })
 
-var Variant = (module.exports = mongoose.model('Variant', variantSchema))
+let Variant = (module.exports = mongoose.model('Variant', variantSchema))
 
-module.exports.getVariantByID = function (id, callback) {
+module.exports.getVariantByID = (id, callback) => {
   Variant.findById(id, callback)
 }
 
-module.exports.getVariantProductByID = function (id, callback) {
-  var query = { productID: id }
+module.exports.getVariantProductByID = (id, callback) => {
+  let query = { productID: id }
   Variant.find(query, callback)
 }
-module.exports.getAllVariants = function (callback) {
+module.exports.getAllVariants = (callback) => {
   Variant.find(callback)
 }
